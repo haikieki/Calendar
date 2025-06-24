@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* FullCalendar custom styles */
+.fc {
+  @apply text-gray-900 dark:text-white;
+}
+
+.fc .fc-button-primary {
+  @apply bg-blue-600 border-blue-600 hover:bg-blue-700 hover:border-blue-700;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  @apply bg-blue-700 border-blue-700;
+}
+
+.fc .fc-toolbar-title {
+  @apply text-xl font-semibold;
+}
+
+.fc .fc-daygrid-day {
+  @apply hover:bg-gray-50 dark:hover:bg-gray-700/50;
+}
+
+.fc .fc-daygrid-day-number {
+  @apply text-gray-700 dark:text-gray-300;
+}
+
+.fc .fc-col-header-cell {
+  @apply bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-medium;
+}
+
+.fc .fc-scrollgrid {
+  @apply border-gray-200 dark:border-gray-700;
+}
+
+.fc .fc-scrollgrid td,
+.fc .fc-scrollgrid th {
+  @apply border-gray-200 dark:border-gray-700;
+}
+
+.fc .fc-more-popover {
+  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg;
+}
+
+.fc .fc-more-popover .fc-popover-header {
+  @apply bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white;
+}
+
+.fc .fc-event {
+  @apply border-0 shadow-sm cursor-pointer;
+}
+
+.fc .fc-event:hover {
+  @apply shadow-md transform scale-105;
+  transition: all 0.2s ease;
+}
+
+.fc .fc-event-title {
+  @apply font-medium text-sm;
+}
+
+.fc .fc-list-event-title {
+  @apply text-gray-900 dark:text-white;
+}
+
+.fc .fc-list-event-time {
+  @apply text-gray-600 dark:text-gray-400;
+}
+
+/* Custom tooltip styles */
+.calendar-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Dark mode enhancements */
+.dark .fc {
+  @apply bg-gray-800;
+}
+
+.dark .fc .fc-button-primary {
+  @apply bg-blue-600 border-blue-600;
+}
+
+.dark .fc .fc-today-button,
+.dark .fc .fc-prev-button,
+.dark .fc .fc-next-button {
+  @apply bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600;
+}
+
+.dark .fc .fc-daygrid-day.fc-day-today {
+  @apply bg-blue-900/20;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    @apply flex-col space-y-2;
+  }
+  
+  .fc .fc-toolbar-chunk {
+    @apply flex justify-center;
+  }
+  
+  .fc .fc-button-group {
+    @apply flex flex-wrap justify-center;
+  }
+  
+  .fc .fc-button {
+    @apply text-xs px-2 py-1;
+  }
+}
+
+/* Animation classes */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Prose styles for markdown */
+.prose {
+  @apply max-w-none;
+}
+
+.prose p {
+  @apply mb-2;
+}
+
+.prose ul {
+  @apply list-disc list-inside mb-2;
+}
+
+.prose ol {
+  @apply list-decimal list-inside mb-2;
+}
+
+.prose h1, .prose h2, .prose h3 {
+  @apply font-semibold mb-2;
+}
+
+.prose code {
+  @apply bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic;
+}

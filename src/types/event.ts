@@ -1,0 +1,31 @@
+export interface CalendarEvent {
+  id: string;
+  project: string;
+  title: string;
+  start: string;
+  end?: string | null;
+  location?: string | null;
+  memo?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventFormData {
+  project: string;
+  title: string;
+  start: string;
+  end?: string;
+  location?: string;
+  memo?: string;
+}
+
+export const PROJECTS = [
+  { name: 'SEVENDAO', color: '#3B82F6' },
+  { name: '赤犬赤猫', color: '#EF4444' },
+  { name: 'REDSPORTSSOLUTION', color: '#F97316' },
+  { name: 'RED° TOKYO PREMIUM', color: '#8B5CF6' },
+  { name: 'ScentJapanDAO', color: '#22C55E' },
+  { name: 'CNPRED゜', color: '#EC4899' },
+] as const;
+
+export type ProjectName = typeof PROJECTS[number]['name'];
