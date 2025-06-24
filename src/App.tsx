@@ -98,9 +98,9 @@ function App() {
 
   if (authLoading || eventsLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-overlay flex items-center justify-center">
         <motion.div
-          className="flex items-center space-x-4"
+          className="flex items-center space-x-4 glass-card p-8 rounded-2xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -112,7 +112,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-overlay transition-colors">
       <Header 
         onLoginClick={() => setShowAuthModal(true)}
         onNewEventClick={handleNewEventClick}

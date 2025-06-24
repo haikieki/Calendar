@@ -9,7 +9,7 @@ interface ProjectFilterProps {
 
 export function ProjectFilter({ visibleProjects, onToggleProject }: ProjectFilterProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+    <div className="glass-card rounded-xl p-4">
       <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
         プロジェクトフィルター
       </h3>

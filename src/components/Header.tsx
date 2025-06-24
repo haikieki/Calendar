@@ -18,7 +18,7 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+    <header className="glass-card border-b border-gray-200/20 dark:border-gray-700/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <motion.div 
@@ -49,7 +49,7 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
                 onClick={onNewEventClick}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium backdrop-blur-sm"
               >
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">新規イベント</span>
@@ -60,7 +60,7 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
               onClick={toggleDarkMode}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 text-gray-600 dark:text-gray-400 hover:bg-white/20 dark:hover:bg-gray-700/50 rounded-lg transition-colors backdrop-blur-sm"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </motion.button>
@@ -81,7 +81,7 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
                   onClick={handleSignOut}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:bg-white/20 dark:hover:bg-gray-700/50 rounded-lg transition-colors backdrop-blur-sm"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">ログアウト</span>
@@ -92,7 +92,7 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
                 onClick={onLoginClick}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors font-medium"
+                className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 rounded-lg transition-colors font-medium backdrop-blur-sm"
               >
                 <LogIn className="w-4 h-4" />
                 <span className="hidden sm:inline">ログイン</span>

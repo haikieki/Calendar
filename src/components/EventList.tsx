@@ -52,8 +52,8 @@ export function EventList({ events, visibleProjects, onEventClick, onCopyEvent, 
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 h-full">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+    <div className="glass-card rounded-xl h-full">
+      <div className="p-4 border-b border-gray-200/20 dark:border-gray-700/20">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
           <Calendar className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
           今日のイベント
@@ -88,7 +88,7 @@ export function EventList({ events, visibleProjects, onEventClick, onCopyEvent, 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`p-4 rounded-lg border-l-4 bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer ${
+                  className={`p-4 rounded-lg border-l-4 bg-white/50 dark:bg-gray-700/50 hover:bg-white/70 dark:hover:bg-gray-700/70 transition-colors cursor-pointer backdrop-blur-sm ${
                     isAdmin ? 'hover:shadow-md' : ''
                   }`}
                   style={{ borderLeftColor: projectColor }}
