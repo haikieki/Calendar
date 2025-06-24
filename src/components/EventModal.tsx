@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, MapPin, FileText, Clock } from 'lucide-react';
+import { X, Calendar, MapPin, FileText, Clock, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import { PROJECTS, type CalendarEvent, type EventFormData } from '../types/event';
@@ -77,17 +77,30 @@ export function EventModal({
     setError('');
 
     try {
+      // Validate dates
+      const startDate = new Date(data.start);
+      const endDate = data.end ? new Date(data.end) : null;
+      
+      if (endDate && endDate <= startDate) {
+        throw new Error('終了日時は開始日時より後に設定してください');
+      }
+
       // Convert dates to ISO strings
       const formattedData: EventFormData = {
         ...data,
-        start: new Date(data.start).toISOString(),
-        end: data.end ? new Date(data.end).toISOString() : undefined,
+        start: startDate.toISOString(),
+        end: endDate ? endDate.toISOString() : undefined,
+        // Ensure empty strings are converted to null for optional fields
+        location: data.location?.trim() || undefined,
+        memo: data.memo?.trim() || undefined,
       };
 
+      console.log('Submitting event data:', formattedData);
       await onSave(formattedData);
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'エラーが発生しました');
+      console.error('Error saving event:', err);
+      setError(err instanceof Error ? err.message : 'イベントの保存中にエラーが発生しました');
     } finally {
       setLoading(false);
     }
@@ -102,7 +115,8 @@ export function EventModal({
         await onDelete(event.id);
         handleClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'エラーが発生しました');
+        console.error('Error deleting event:', err);
+        setError(err instanceof Error ? err.message : 'イベントの削除中にエラーが発生しました');
       } finally {
         setLoading(false);
       }
@@ -154,9 +168,13 @@ export function EventModal({
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                    className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start space-x-3"
                   >
-                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-red-800 dark:text-red-200">エラーが発生しました</p>
+                      <p className="text-sm text-red-600 dark:text-red-400 mt-1">{error}</p>
+                    </div>
                   </motion.div>
                 )}
 
@@ -175,6 +193,9 @@ export function EventModal({
                         </option>
                       ))}
                     </select>
+                    {errors.project && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.project.message}</p>
+                    )}
                   </div>
 
                   <div>
@@ -183,7 +204,10 @@ export function EventModal({
                     </label>
                     <input
                       type="text"
-                      {...register('title', { required: 'タイトルを入力してください' })}
+                      {...register('title', { 
+                        required: 'タイトルを入力してください',
+                        minLength: { value: 1, message: 'タイトルを入力してください' }
+                      })}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       placeholder="イベントタイトル"
                     />
@@ -273,9 +297,10 @@ export function EventModal({
                     <motion.button
                       type="button"
                       onClick={handleDelete}
+                      disabled={loading}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium"
+                      className="px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium disabled:opacity-50"
                     >
                       削除
                     </motion.button>
@@ -286,9 +311,10 @@ export function EventModal({
                   <motion.button
                     type="button"
                     onClick={handleClose}
+                    disabled={loading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium"
+                    className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium disabled:opacity-50"
                   >
                     キャンセル
                   </motion.button>
@@ -297,9 +323,12 @@ export function EventModal({
                     disabled={loading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium"
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center space-x-2"
                   >
-                    {loading ? '保存中...' : '保存'}
+                    {loading && (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    )}
+                    <span>{loading ? '保存中...' : '保存'}</span>
                   </motion.button>
                 </div>
               </div>

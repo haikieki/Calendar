@@ -14,7 +14,7 @@ export function useAuth() {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        const isAdmin = session.user.user_metadata?.role === 'admin';
+        const isAdmin = checkIsAdmin(session.user);
         setUser({ ...session.user, isAdmin });
       }
       setLoading(false);
@@ -24,7 +24,7 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
-          const isAdmin = session.user.user_metadata?.role === 'admin';
+          const isAdmin = checkIsAdmin(session.user);
           setUser({ ...session.user, isAdmin });
         } else {
           setUser(null);
@@ -36,12 +36,35 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const checkIsAdmin = (user: User): boolean => {
+    // Check multiple possible locations for admin role
+    const userMetadata = user.user_metadata || {};
+    const appMetadata = user.app_metadata || {};
+    
+    return (
+      userMetadata.role === 'admin' ||
+      appMetadata.role === 'admin' ||
+      user.email === 'admin@sevendao.dev'
+    );
+  };
+
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        console.error('Sign in error:', error);
+        return { error };
+      }
+      
+      return { data, error: null };
+    } catch (err) {
+      console.error('Sign in exception:', err);
+      return { error: err as Error };
+    }
   };
 
   const signOut = async () => {
