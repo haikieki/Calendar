@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Moon, Sun, LogIn, LogOut, Plus } from 'lucide-react';
+import { Moon, Sun, LogIn, LogOut, Plus } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { useAuth } from '../hooks/useAuth';
 
@@ -26,8 +26,12 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg">
-              <Calendar className="w-6 h-6 text-white" />
+            <div className="p-2 bg-white rounded-lg shadow-sm">
+              <img 
+                src="/49311281b407599fe966d8b236dabd35 copy.jpg" 
+                alt="SEVEN DAO Logo" 
+                className="w-8 h-8 object-contain"
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
