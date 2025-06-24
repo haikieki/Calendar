@@ -28,4 +28,18 @@ export const PROJECTS = [
   { name: 'CNPRED゜', color: '#EC4899' },
 ] as const;
 
+export const LOCATIONS = [
+  { value: '', label: '場所を選択してください' },
+  { value: 'Xスペース', label: 'Xスペース' },
+  { value: 'ディスコード', label: 'ディスコード' },
+  { value: 'Tokyo Office', label: 'Tokyo Office' },
+  { value: 'Shibuya Studio', label: 'Shibuya Studio' },
+  { value: 'Roppongi Hills', label: 'Roppongi Hills' },
+  { value: 'R&D Lab', label: 'R&D Lab' },
+  { value: 'Virtual Space', label: 'Virtual Space' },
+  { value: 'Online', label: 'Online' },
+  { value: 'その他', label: 'その他' },
+] as const;
+
 export type ProjectName = typeof PROJECTS[number]['name'];
+export type LocationValue = typeof LOCATIONS[number]['value'];

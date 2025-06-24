@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, FileText, Clock, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
-import { PROJECTS, type CalendarEvent, type EventFormData } from '../types/event';
+import { PROJECTS, LOCATIONS, type CalendarEvent, type EventFormData } from '../types/event';
 
 interface EventModalProps {
   isOpen: boolean;
@@ -25,8 +25,9 @@ export function EventModal({
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState('');
+  const [showCustomLocation, setShowCustomLocation] = useState(false);
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<EventFormData>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<EventFormData>({
     defaultValues: {
       project: 'SEVENDAO',
       title: '',
@@ -38,20 +39,29 @@ export function EventModal({
   });
 
   const memoValue = watch('memo');
+  const locationValue = watch('location');
 
   useEffect(() => {
     if (event) {
       const startDate = new Date(event.start);
       const endDate = event.end ? new Date(event.end) : null;
       
+      // Check if the location is in our predefined list
+      const isCustomLocation = event.location && !LOCATIONS.some(loc => loc.value === event.location);
+      
       reset({
         project: event.project,
         title: event.title,
         start: startDate.toISOString().slice(0, 16),
         end: endDate?.toISOString().slice(0, 16) || '',
-        location: event.location || '',
+        location: isCustomLocation ? 'その他' : (event.location || ''),
         memo: event.memo || '',
       });
+      
+      setShowCustomLocation(isCustomLocation);
+      if (isCustomLocation) {
+        setValue('location', event.location || '');
+      }
     } else if (initialDate) {
       const date = new Date(initialDate);
       reset({
@@ -62,14 +72,26 @@ export function EventModal({
         location: '',
         memo: '',
       });
+      setShowCustomLocation(false);
     }
-  }, [event, initialDate, reset]);
+  }, [event, initialDate, reset, setValue]);
+
+  // Handle location dropdown change
+  useEffect(() => {
+    if (locationValue === 'その他') {
+      setShowCustomLocation(true);
+      setValue('location', '');
+    } else {
+      setShowCustomLocation(false);
+    }
+  }, [locationValue, setValue]);
 
   const handleClose = () => {
     onClose();
     reset();
     setError('');
     setShowPreview(false);
+    setShowCustomLocation(false);
   };
 
   const onSubmit = async (data: EventFormData) => {
@@ -251,12 +273,37 @@ export function EventModal({
                     <MapPin className="w-4 h-4 inline mr-1" />
                     場所
                   </label>
-                  <input
-                    type="text"
-                    {...register('location')}
-                    className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="イベント会場"
-                  />
+                  {!showCustomLocation ? (
+                    <select
+                      {...register('location')}
+                      className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                      {LOCATIONS.map((location) => (
+                        <option key={location.value} value={location.value}>
+                          {location.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        {...register('location')}
+                        className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="カスタム場所を入力"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCustomLocation(false);
+                          setValue('location', '');
+                        }}
+                        className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
+                      >
+                        プリセットから選択
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
