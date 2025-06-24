@@ -23,7 +23,7 @@ export function useGoogleCalendar() {
   // Initialize Google API
   const initializeGoogleAPI = async () => {
     return new Promise((resolve, reject) => {
-      if (typeof window.gapi !== 'undefined') {
+      if (typeof window.gapi !== 'undefined' && window.gapi.auth2) {
         resolve(window.gapi);
         return;
       }
@@ -31,15 +31,26 @@ export function useGoogleCalendar() {
       const script = document.createElement('script');
       script.src = 'https://apis.google.com/js/api.js';
       script.onload = () => {
-        window.gapi.load('client:auth2', () => {
-          window.gapi.client.init({
-            apiKey: import.meta.env.VITE_GOOGLE_API_KEY,
-            clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-            scope: 'https://www.googleapis.com/auth/calendar'
-          }).then(() => {
+        window.gapi.load('client:auth2', async () => {
+          try {
+            // Initialize both client and auth2
+            await window.gapi.client.init({
+              apiKey: import.meta.env.VITE_GOOGLE_API_KEY,
+              clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+              discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
+              scope: 'https://www.googleapis.com/auth/calendar'
+            });
+
+            // Ensure auth2 is properly initialized
+            await window.gapi.auth2.init({
+              client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+              scope: 'https://www.googleapis.com/auth/calendar'
+            });
+
             resolve(window.gapi);
-          }).catch(reject);
+          } catch (error) {
+            reject(error);
+          }
         });
       };
       script.onerror = reject;
