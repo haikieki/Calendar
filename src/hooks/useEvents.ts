@@ -84,6 +84,21 @@ export function useEvents() {
     try {
       console.log('Deleting event:', id);
       
+      // First check if the user is authenticated
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('認証が必要です。ログインしてください。');
+      }
+
+      // Check if user has admin privileges
+      const isAdmin = user.email === 'admin@sevendao.dev' || 
+                     user.user_metadata?.role === 'admin' ||
+                     user.app_metadata?.role === 'admin';
+      
+      if (!isAdmin) {
+        throw new Error('管理者権限が必要です。');
+      }
+
       const { error } = await supabase
         .from('events')
         .delete()
@@ -91,13 +106,29 @@ export function useEvents() {
 
       if (error) {
         console.error('Error deleting event:', error);
-        throw new Error(`イベントの削除に失敗しました: ${error.message}`);
+        
+        // Provide more specific error messages
+        if (error.code === 'PGRST116') {
+          throw new Error('削除するイベントが見つかりません。');
+        } else if (error.code === '42501') {
+          throw new Error('削除権限がありません。管理者としてログインしてください。');
+        } else if (error.message.includes('JWT')) {
+          throw new Error('認証エラーです。再度ログインしてください。');
+        } else {
+          throw new Error(`イベントの削除に失敗しました: ${error.message}`);
+        }
       }
 
       console.log('Event deleted successfully');
       await fetchEvents();
     } catch (err) {
       console.error('Exception deleting event:', err);
+      
+      // Handle network errors specifically
+      if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+        throw new Error('ネットワークエラーです。インターネット接続を確認してください。');
+      }
+      
       throw err;
     }
   };

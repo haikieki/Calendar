@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, MapPin, FileText, Clock, AlertCircle, Copy } from 'lucide-react';
+import { X, Calendar, MapPin, FileText, Clock, AlertCircle, Copy, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import { PROJECTS, LOCATIONS, type CalendarEvent, type EventFormData } from '../types/event';
@@ -28,6 +28,7 @@ export function EventModal({
   const [showPreview, setShowPreview] = useState(false);
   const [error, setError] = useState('');
   const [showCustomLocation, setShowCustomLocation] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<EventFormData>({
     defaultValues: {
@@ -112,6 +113,7 @@ export function EventModal({
     setError('');
     setShowPreview(false);
     setShowCustomLocation(false);
+    setDeleteLoading(false);
   };
 
   const onSubmit = async (data: EventFormData) => {
@@ -151,8 +153,10 @@ export function EventModal({
   const handleDelete = async () => {
     if (!event || !onDelete) return;
     
-    if (confirm('このイベントを削除してもよろしいですか？')) {
-      setLoading(true);
+    if (confirm('このイベントを削除してもよろしいですか？この操作は取り消せません。')) {
+      setDeleteLoading(true);
+      setError('');
+      
       try {
         await onDelete(event.id);
         handleClose();
@@ -160,7 +164,7 @@ export function EventModal({
         console.error('Error deleting event:', err);
         setError(err instanceof Error ? err.message : 'イベントの削除中にエラーが発生しました');
       } finally {
-        setLoading(false);
+        setDeleteLoading(false);
       }
     }
   };
@@ -374,12 +378,17 @@ export function EventModal({
                     <motion.button
                       type="button"
                       onClick={handleDelete}
-                      disabled={loading}
+                      disabled={loading || deleteLoading}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium disabled:opacity-50"
+                      className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-medium disabled:opacity-50"
                     >
-                      削除
+                      {deleteLoading ? (
+                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                      <span>{deleteLoading ? '削除中...' : '削除'}</span>
                     </motion.button>
                   )}
                 </div>
@@ -388,7 +397,7 @@ export function EventModal({
                   <motion.button
                     type="button"
                     onClick={handleClose}
-                    disabled={loading}
+                    disabled={loading || deleteLoading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors font-medium disabled:opacity-50"
@@ -397,7 +406,7 @@ export function EventModal({
                   </motion.button>
                   <motion.button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || deleteLoading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors font-medium flex items-center space-x-2"
