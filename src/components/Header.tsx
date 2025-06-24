@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Settings, Moon, Sun, LogIn, LogOut, Plus, Sync } from 'lucide-react';
+import { Calendar, Settings, Moon, Sun, LogIn, LogOut, Plus, FolderSync as Sync } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { useAuth } from '../hooks/useAuth';
 
