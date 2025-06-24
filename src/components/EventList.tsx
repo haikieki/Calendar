@@ -18,9 +18,15 @@ export function EventList({ events, visibleProjects, onEventClick, onCopyEvent, 
     new Date(a.start).getTime() - new Date(b.start).getTime()
   );
   
-  const upcomingEvents = sortedEvents.filter(event => 
-    new Date(event.start) >= new Date()
-  ).slice(0, 10);
+  // Get today's date in YYYY-MM-DD format
+  const today = new Date();
+  const todayString = today.toISOString().split('T')[0];
+  
+  // Filter events for today only
+  const todaysEvents = sortedEvents.filter(event => {
+    const eventDate = new Date(event.start).toISOString().split('T')[0];
+    return eventDate === todayString;
+  });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -50,21 +56,29 @@ export function EventList({ events, visibleProjects, onEventClick, onCopyEvent, 
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
           <Calendar className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
-          今後のイベント
+          今日のイベント
         </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {today.toLocaleDateString('ja-JP', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            weekday: 'long'
+          })}
+        </p>
       </div>
       
       <div className="p-4 overflow-y-auto max-h-[calc(100vh-200px)]">
-        {upcomingEvents.length === 0 ? (
+        {todaysEvents.length === 0 ? (
           <div className="text-center py-8">
             <Calendar className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <p className="text-gray-500 dark:text-gray-400">
-              {visibleProjects.size === 0 ? 'プロジェクトを選択してください' : '予定されたイベントはありません'}
+              {visibleProjects.size === 0 ? 'プロジェクトを選択してください' : '今日のイベントはありません'}
             </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {upcomingEvents.map((event, index) => {
+            {todaysEvents.map((event, index) => {
               const { date, time } = formatDate(event.start);
               const projectColor = getProjectColor(event.project);
               
