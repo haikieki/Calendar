@@ -6,6 +6,7 @@ import { ProjectFilter } from './components/ProjectFilter';
 import { EventList } from './components/EventList';
 import { AuthModal } from './components/AuthModal';
 import { EventModal } from './components/EventModal';
+import { GoogleCalendarSync } from './components/GoogleCalendarSync';
 import { useAuth } from './hooks/useAuth';
 import { useEvents } from './hooks/useEvents';
 import { PROJECTS, type CalendarEvent } from './types/event';
@@ -19,6 +20,7 @@ function App() {
   );
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [showGoogleSync, setShowGoogleSync] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
 
@@ -70,6 +72,24 @@ function App() {
     setShowEventModal(false);
   };
 
+  const handleImportEvents = async (importedEvents: CalendarEvent[]) => {
+    // Import events one by one
+    for (const event of importedEvents) {
+      try {
+        await createEvent({
+          project: event.project,
+          title: event.title,
+          start: event.start,
+          end: event.end || undefined,
+          location: event.location || undefined,
+          memo: event.memo || undefined,
+        });
+      } catch (error) {
+        console.error('Failed to import event:', event.title, error);
+      }
+    }
+  };
+
   if (authLoading || eventsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -90,6 +110,7 @@ function App() {
       <Header 
         onLoginClick={() => setShowAuthModal(true)}
         onNewEventClick={handleNewEventClick}
+        onGoogleSyncClick={() => setShowGoogleSync(true)}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -135,6 +156,13 @@ function App() {
         onDelete={selectedEvent ? handleEventDelete : undefined}
         event={selectedEvent}
         initialDate={selectedDate}
+      />
+
+      <GoogleCalendarSync
+        isOpen={showGoogleSync}
+        onClose={() => setShowGoogleSync(false)}
+        events={events}
+        onImportEvents={handleImportEvents}
       />
     </div>
   );

@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Clock } from 'lucide-react';
+import { Calendar, MapPin, Clock, ExternalLink } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { PROJECTS, type CalendarEvent } from '../types/event';
+import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
 
 interface EventListProps {
   events: CalendarEvent[];
@@ -12,6 +13,8 @@ interface EventListProps {
 }
 
 export function EventList({ events, visibleProjects, onEventClick, isAdmin }: EventListProps) {
+  const { generateGoogleCalendarUrl } = useGoogleCalendar();
+  
   const filteredEvents = events.filter(event => visibleProjects.has(event.project));
   const sortedEvents = [...filteredEvents].sort((a, b) => 
     new Date(a.start).getTime() - new Date(b.start).getTime()
@@ -37,6 +40,12 @@ export function EventList({ events, visibleProjects, onEventClick, isAdmin }: Ev
 
   const getProjectColor = (projectName: string) => {
     return PROJECTS.find(p => p.name === projectName)?.color || '#6B7280';
+  };
+
+  const handleGoogleCalendarClick = (event: CalendarEvent, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = generateGoogleCalendarUrl(event);
+    window.open(url, '_blank');
   };
 
   return (
@@ -89,14 +98,23 @@ export function EventList({ events, visibleProjects, onEventClick, isAdmin }: Ev
                         </span>
                       </div>
                     </div>
-                    <div className="text-right ml-4">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {date}
+                    <div className="flex items-center space-x-2">
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {date}
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {time}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {time}
-                      </div>
+                      <button
+                        onClick={(e) => handleGoogleCalendarClick(event, e)}
+                        className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        title="Googleカレンダーに追加"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
                   
