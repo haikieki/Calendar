@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from './components/Header';
 import { Calendar } from './components/Calendar';
@@ -22,6 +22,19 @@ function App() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [copyingEvent, setCopyingEvent] = useState<CalendarEvent | null>(null);
+
+  // Monitor user authentication state and handle session expiry
+  useEffect(() => {
+    if (!user && showEventModal) {
+      // User session expired while event modal was open
+      setShowEventModal(false);
+      setShowAuthModal(true);
+      // Clear modal state
+      setSelectedEvent(null);
+      setCopyingEvent(null);
+      setSelectedDate('');
+    }
+  }, [user, showEventModal]);
 
   const handleToggleProject = (project: string) => {
     const newVisible = new Set(visibleProjects);
