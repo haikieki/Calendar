@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, MapPin, FileText, Clock, AlertCircle } from 'lucide-react';
+import { X, Calendar, MapPin, FileText, Clock, AlertCircle, Copy } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import { PROJECTS, LOCATIONS, type CalendarEvent, type EventFormData } from '../types/event';
@@ -11,6 +11,7 @@ interface EventModalProps {
   onSave: (data: EventFormData) => Promise<void>;
   onDelete?: (id: string) => Promise<void>;
   event?: CalendarEvent | null;
+  copyingEvent?: CalendarEvent | null;
   initialDate?: string;
 }
 
@@ -20,6 +21,7 @@ export function EventModal({
   onSave, 
   onDelete, 
   event, 
+  copyingEvent,
   initialDate 
 }: EventModalProps) {
   const [loading, setLoading] = useState(false);
@@ -62,6 +64,24 @@ export function EventModal({
       if (isCustomLocation) {
         setValue('location', event.location || '');
       }
+    } else if (copyingEvent) {
+      // When copying an event, use the event data but with new date/time
+      const date = initialDate ? new Date(initialDate) : new Date();
+      const isCustomLocation = copyingEvent.location && !LOCATIONS.some(loc => loc.value === copyingEvent.location);
+      
+      reset({
+        project: copyingEvent.project,
+        title: `${copyingEvent.title} (コピー)`,
+        start: date.toISOString().slice(0, 16),
+        end: '',
+        location: isCustomLocation ? 'その他' : (copyingEvent.location || ''),
+        memo: copyingEvent.memo || '',
+      });
+      
+      setShowCustomLocation(isCustomLocation);
+      if (isCustomLocation) {
+        setValue('location', copyingEvent.location || '');
+      }
     } else if (initialDate) {
       const date = new Date(initialDate);
       reset({
@@ -74,7 +94,7 @@ export function EventModal({
       });
       setShowCustomLocation(false);
     }
-  }, [event, initialDate, reset, setValue]);
+  }, [event, copyingEvent, initialDate, reset, setValue]);
 
   // Handle location dropdown change
   useEffect(() => {
@@ -147,6 +167,12 @@ export function EventModal({
 
   const selectedProject = PROJECTS.find(p => p.name === watch('project'));
 
+  const getModalTitle = () => {
+    if (copyingEvent) return 'イベントをコピー';
+    if (event) return 'イベント編集';
+    return '新規イベント';
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -170,10 +196,14 @@ export function EventModal({
                   className="p-2 rounded-lg"
                   style={{ backgroundColor: `${selectedProject?.color}20` }}
                 >
-                  <Calendar className="w-5 h-5" style={{ color: selectedProject?.color }} />
+                  {copyingEvent ? (
+                    <Copy className="w-5 h-5" style={{ color: selectedProject?.color }} />
+                  ) : (
+                    <Calendar className="w-5 h-5" style={{ color: selectedProject?.color }} />
+                  )}
                 </div>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {event ? 'イベント編集' : '新規イベント'}
+                  {getModalTitle()}
                 </h2>
               </div>
               <button

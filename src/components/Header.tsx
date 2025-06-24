@@ -1,16 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Settings, Moon, Sun, LogIn, LogOut, Plus, FolderSync as Sync } from 'lucide-react';
+import { Calendar, Moon, Sun, LogIn, LogOut, Plus } from 'lucide-react';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { useAuth } from '../hooks/useAuth';
 
 interface HeaderProps {
   onLoginClick: () => void;
   onNewEventClick: () => void;
-  onGoogleSyncClick: () => void;
 }
 
-export function Header({ onLoginClick, onNewEventClick, onGoogleSyncClick }: HeaderProps) {
+export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
   const { isDark, toggleDarkMode } = useDarkMode();
   const { user, signOut } = useAuth();
 
@@ -46,28 +45,15 @@ export function Header({ onLoginClick, onNewEventClick, onGoogleSyncClick }: Hea
             animate={{ opacity: 1, x: 0 }}
           >
             {user?.isAdmin && (
-              <>
-                <motion.button
-                  onClick={onGoogleSyncClick}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Googleカレンダー連携"
-                >
-                  <Sync className="w-4 h-4" />
-                  <span className="hidden sm:inline">Google連携</span>
-                </motion.button>
-
-                <motion.button
-                  onClick={onNewEventClick}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">新規イベント</span>
-                </motion.button>
-              </>
+              <motion.button
+                onClick={onNewEventClick}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">新規イベント</span>
+              </motion.button>
             )}
 
             <motion.button

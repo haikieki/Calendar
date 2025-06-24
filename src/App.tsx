@@ -6,7 +6,6 @@ import { ProjectFilter } from './components/ProjectFilter';
 import { EventList } from './components/EventList';
 import { AuthModal } from './components/AuthModal';
 import { EventModal } from './components/EventModal';
-import { GoogleCalendarSync } from './components/GoogleCalendarSync';
 import { useAuth } from './hooks/useAuth';
 import { useEvents } from './hooks/useEvents';
 import { PROJECTS, type CalendarEvent } from './types/event';
@@ -20,9 +19,9 @@ function App() {
   );
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
-  const [showGoogleSync, setShowGoogleSync] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [copyingEvent, setCopyingEvent] = useState<CalendarEvent | null>(null);
 
   const handleToggleProject = (project: string) => {
     const newVisible = new Set(visibleProjects);
@@ -37,6 +36,7 @@ function App() {
   const handleDateClick = (date: string) => {
     if (user?.isAdmin) {
       setSelectedEvent(null);
+      setCopyingEvent(null);
       setSelectedDate(date);
       setShowEventModal(true);
     }
@@ -45,6 +45,7 @@ function App() {
   const handleEventClick = (event: CalendarEvent) => {
     if (user?.isAdmin) {
       setSelectedEvent(event);
+      setCopyingEvent(null);
       setSelectedDate('');
       setShowEventModal(true);
     }
@@ -53,6 +54,16 @@ function App() {
   const handleNewEventClick = () => {
     if (user?.isAdmin) {
       setSelectedEvent(null);
+      setCopyingEvent(null);
+      setSelectedDate(new Date().toISOString());
+      setShowEventModal(true);
+    }
+  };
+
+  const handleCopyEvent = (event: CalendarEvent) => {
+    if (user?.isAdmin) {
+      setSelectedEvent(null);
+      setCopyingEvent(event);
       setSelectedDate(new Date().toISOString());
       setShowEventModal(true);
     }
@@ -70,24 +81,6 @@ function App() {
   const handleEventDelete = async (id: string) => {
     await deleteEvent(id);
     setShowEventModal(false);
-  };
-
-  const handleImportEvents = async (importedEvents: CalendarEvent[]) => {
-    // Import events one by one
-    for (const event of importedEvents) {
-      try {
-        await createEvent({
-          project: event.project,
-          title: event.title,
-          start: event.start,
-          end: event.end || undefined,
-          location: event.location || undefined,
-          memo: event.memo || undefined,
-        });
-      } catch (error) {
-        console.error('Failed to import event:', event.title, error);
-      }
-    }
   };
 
   if (authLoading || eventsLoading) {
@@ -110,7 +103,6 @@ function App() {
       <Header 
         onLoginClick={() => setShowAuthModal(true)}
         onNewEventClick={handleNewEventClick}
-        onGoogleSyncClick={() => setShowGoogleSync(true)}
       />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -137,6 +129,7 @@ function App() {
               events={events}
               visibleProjects={visibleProjects}
               onEventClick={handleEventClick}
+              onCopyEvent={handleCopyEvent}
               isAdmin={user?.isAdmin || false}
             />
           </div>
@@ -155,14 +148,8 @@ function App() {
         onSave={handleEventSave}
         onDelete={selectedEvent ? handleEventDelete : undefined}
         event={selectedEvent}
+        copyingEvent={copyingEvent}
         initialDate={selectedDate}
-      />
-
-      <GoogleCalendarSync
-        isOpen={showGoogleSync}
-        onClose={() => setShowGoogleSync(false)}
-        events={events}
-        onImportEvents={handleImportEvents}
       />
     </div>
   );

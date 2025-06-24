@@ -1,20 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { Calendar, MapPin, Clock, Copy } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { PROJECTS, type CalendarEvent } from '../types/event';
-import { useGoogleCalendar } from '../hooks/useGoogleCalendar';
 
 interface EventListProps {
   events: CalendarEvent[];
   visibleProjects: Set<string>;
   onEventClick: (event: CalendarEvent) => void;
+  onCopyEvent: (event: CalendarEvent) => void;
   isAdmin: boolean;
 }
 
-export function EventList({ events, visibleProjects, onEventClick, isAdmin }: EventListProps) {
-  const { generateGoogleCalendarUrl } = useGoogleCalendar();
-  
+export function EventList({ events, visibleProjects, onEventClick, onCopyEvent, isAdmin }: EventListProps) {
   const filteredEvents = events.filter(event => visibleProjects.has(event.project));
   const sortedEvents = [...filteredEvents].sort((a, b) => 
     new Date(a.start).getTime() - new Date(b.start).getTime()
@@ -42,10 +40,9 @@ export function EventList({ events, visibleProjects, onEventClick, isAdmin }: Ev
     return PROJECTS.find(p => p.name === projectName)?.color || '#6B7280';
   };
 
-  const handleGoogleCalendarClick = (event: CalendarEvent, e: React.MouseEvent) => {
+  const handleCopyClick = (event: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    const url = generateGoogleCalendarUrl(event);
-    window.open(url, '_blank');
+    onCopyEvent(event);
   };
 
   return (
@@ -108,13 +105,15 @@ export function EventList({ events, visibleProjects, onEventClick, isAdmin }: Ev
                           {time}
                         </div>
                       </div>
-                      <button
-                        onClick={(e) => handleGoogleCalendarClick(event, e)}
-                        className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                        title="Googleカレンダーに追加"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={(e) => handleCopyClick(event, e)}
+                          className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          title="イベントをコピー"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                   
