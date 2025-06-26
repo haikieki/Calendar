@@ -193,6 +193,8 @@ export function useNotifications() {
         .upsert({
           user_id: user.id,
           settings: newSettings,
+        }, {
+          onConflict: 'user_id'
         });
 
       if (error) {
