@@ -3,11 +3,19 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from './useAuth';
 import type { Notification, NotificationSettings } from '../types/notification';
 
+const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
+  reminderMinutes: [15, 60, 1440],
+  pushNotifications: true,
+  emailNotifications: true,
+  newEventNotifications: true,
+  eventUpdateNotifications: true,
+};
+
 export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<NotificationSettings | null>(null);
+  const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATION_SETTINGS);
   const { user } = useAuth();
 
   const fetchNotifications = async () => {
@@ -47,12 +55,21 @@ export function useNotifications() {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching notification settings:', error);
+        setSettings(DEFAULT_NOTIFICATION_SETTINGS);
         return;
       }
 
-      setSettings(data?.settings || null);
+      // Merge fetched settings with defaults to ensure all properties exist
+      const fetchedSettings = data?.settings || {};
+      const mergedSettings = {
+        ...DEFAULT_NOTIFICATION_SETTINGS,
+        ...fetchedSettings,
+      };
+
+      setSettings(mergedSettings);
     } catch (err) {
       console.error('Exception fetching notification settings:', err);
+      setSettings(DEFAULT_NOTIFICATION_SETTINGS);
     }
   };
 
