@@ -47,6 +47,82 @@ export type Database = {
           updated_at?: string;
         };
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: 'event_reminder' | 'new_event' | 'event_updated' | 'event_deleted' | 'system';
+          title: string;
+          message: string;
+          event_id: string | null;
+          is_read: boolean;
+          created_at: string;
+          scheduled_for: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: 'event_reminder' | 'new_event' | 'event_updated' | 'event_deleted' | 'system';
+          title: string;
+          message: string;
+          event_id?: string | null;
+          is_read?: boolean;
+          created_at?: string;
+          scheduled_for?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: 'event_reminder' | 'new_event' | 'event_updated' | 'event_deleted' | 'system';
+          title?: string;
+          message?: string;
+          event_id?: string | null;
+          is_read?: boolean;
+          created_at?: string;
+          scheduled_for?: string | null;
+        };
+      };
+      notification_settings: {
+        Row: {
+          id: string;
+          user_id: string;
+          settings: {
+            reminderMinutes: number[];
+            pushNotifications: boolean;
+            emailNotifications: boolean;
+            newEventNotifications: boolean;
+            eventUpdateNotifications: boolean;
+          };
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          settings: {
+            reminderMinutes: number[];
+            pushNotifications: boolean;
+            emailNotifications: boolean;
+            newEventNotifications: boolean;
+            eventUpdateNotifications: boolean;
+          };
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          settings?: {
+            reminderMinutes: number[];
+            pushNotifications: boolean;
+            emailNotifications: boolean;
+            newEventNotifications: boolean;
+            eventUpdateNotifications: boolean;
+          };
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 };

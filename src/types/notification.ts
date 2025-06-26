@@ -1,13 +1,13 @@
 export interface Notification {
   id: string;
+  user_id: string;
   type: 'event_reminder' | 'new_event' | 'event_updated' | 'event_deleted' | 'system';
   title: string;
   message: string;
-  eventId?: string;
-  userId: string;
-  isRead: boolean;
-  createdAt: string;
-  scheduledFor?: string;
+  event_id: string | null;
+  is_read: boolean;
+  created_at: string;
+  scheduled_for: string | null;
 }
 
 export interface NotificationSettings {
