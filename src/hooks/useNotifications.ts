@@ -8,7 +8,7 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_NOTIFICATION_SETTINGS);
+  const [settings, setSettings] = useState<NotificationSettings | null>(null);
   const { user } = useAuth();
 
   const fetchNotifications = async () => {
@@ -48,21 +48,32 @@ export function useNotifications() {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching notification settings:', error);
-        setSettings(DEFAULT_NOTIFICATION_SETTINGS);
         return;
       }
 
-      // Merge fetched settings with defaults to ensure all properties exist
-      const fetchedSettings = data?.settings || {};
-      const mergedSettings = {
-        ...DEFAULT_NOTIFICATION_SETTINGS,
-        ...fetchedSettings,
-      };
+      if (data) {
+        setSettings(data);
+      } else {
+        // Create default settings if none exist
+        const defaultSettings = {
+          user_id: user.id,
+          ...DEFAULT_NOTIFICATION_SETTINGS,
+        };
+        
+        const { data: newSettings, error: insertError } = await supabase
+          .from('notification_settings')
+          .insert([defaultSettings])
+          .select()
+          .single();
 
-      setSettings(mergedSettings);
+        if (insertError) {
+          console.error('Error creating notification settings:', insertError);
+        } else {
+          setSettings(newSettings);
+        }
+      }
     } catch (err) {
       console.error('Exception fetching notification settings:', err);
-      setSettings(DEFAULT_NOTIFICATION_SETTINGS);
     }
   };
 
@@ -93,10 +104,11 @@ export function useNotifications() {
           setUnreadCount(prev => prev + 1);
           
           // ブラウザ通知を表示
-          if (Notification.permission === 'granted') {
+          if (settings?.push_notifications && 'Notification' in window && Notification.permission === 'granted') {
             new Notification(newNotification.title, {
               body: newNotification.message,
               icon: '/49311281b407599fe966d8b236dabd35 copy.jpg',
+              tag: newNotification.id,
             });
           }
         }
@@ -106,7 +118,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, settings?.push_notifications]);
 
   const markAsRead = async (notificationId: string) => {
     try {
@@ -177,36 +189,44 @@ export function useNotifications() {
     }
   };
 
-  const updateSettings = async (newSettings: NotificationSettings) => {
-    if (!user) return;
+  const updateSettings = async (newSettings: Partial<NotificationSettings>) => {
+    if (!user || !settings) return;
 
     try {
+      const updatedSettings = { ...settings, ...newSettings };
+      
       const { error } = await supabase
         .from('notification_settings')
-        .upsert({
-          user_id: user.id,
-          settings: newSettings,
-        }, {
-          onConflict: 'user_id'
-        });
+        .update(updatedSettings)
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Error updating notification settings:', error);
         return;
       }
 
-      setSettings(newSettings);
+      setSettings(updatedSettings);
     } catch (err) {
       console.error('Exception updating notification settings:', err);
     }
   };
 
-  const requestPermission = async () => {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      return permission === 'granted';
+  const requestPermission = async (): Promise<boolean> => {
+    if (!('Notification' in window)) {
+      console.warn('This browser does not support notifications');
+      return false;
     }
-    return false;
+
+    if (Notification.permission === 'granted') {
+      return true;
+    }
+
+    if (Notification.permission === 'denied') {
+      return false;
+    }
+
+    const permission = await Notification.requestPermission();
+    return permission === 'granted';
   };
 
   return {

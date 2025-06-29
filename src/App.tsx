@@ -6,6 +6,7 @@ import { ProjectFilter } from './components/ProjectFilter';
 import { EventList } from './components/EventList';
 import { AuthModal } from './components/AuthModal';
 import { EventModal } from './components/EventModal';
+import { NotificationToast } from './components/NotificationToast';
 import { useAuth } from './hooks/useAuth';
 import { useEvents } from './hooks/useEvents';
 import { PROJECTS, type CalendarEvent } from './types/event';
@@ -164,6 +165,9 @@ function App() {
         copyingEvent={copyingEvent}
         initialDate={selectedDate}
       />
+
+      {/* 通知トースト */}
+      <NotificationToast />
     </div>
   );
 }
