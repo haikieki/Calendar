@@ -11,17 +11,21 @@ export function NotificationToast() {
 
   useEffect(() => {
     // 新しい通知をトーストとして表示
-    const newNotifications = notifications.filter(n => 
-      !n.is_read && 
-      !visibleToasts.some(t => t.id === n.id) &&
-      // 作成から5秒以内の通知のみ表示
-      new Date().getTime() - new Date(n.created_at).getTime() < 5000
-    );
+    setVisibleToasts(prevToasts => {
+      const newNotifications = notifications.filter(n => 
+        !n.is_read && 
+        !prevToasts.some(t => t.id === n.id) &&
+        // 作成から5秒以内の通知のみ表示
+        new Date().getTime() - new Date(n.created_at).getTime() < 5000
+      );
 
-    if (newNotifications.length > 0) {
-      setVisibleToasts(prev => [...prev, ...newNotifications.slice(0, 3)]); // 最大3つまで
-    }
-  }, [notifications, visibleToasts]);
+      if (newNotifications.length > 0) {
+        return [...prevToasts, ...newNotifications.slice(0, 3)]; // 最大3つまで
+      }
+      
+      return prevToasts;
+    });
+  }, [notifications]); // visibleToastsを依存配列から削除
 
   const removeToast = (notificationId: string) => {
     setVisibleToasts(prev => prev.filter(t => t.id !== notificationId));
