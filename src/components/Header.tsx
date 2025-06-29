@@ -73,7 +73,7 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
               <div className="flex items-center space-x-2">
                 <div className="hidden sm:block text-right">
                   <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {user.email}
+                    {user.user_metadata?.full_name || user.email}
                   </p>
                   {user.isAdmin && (
                     <p className="text-xs text-blue-600 dark:text-blue-400">
@@ -99,7 +99,7 @@ export function Header({ onLoginClick, onNewEventClick }: HeaderProps) {
                 className="flex items-center space-x-2 px-4 py-2 text-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 rounded-lg transition-colors font-medium backdrop-blur-sm"
               >
                 <LogIn className="w-4 h-4" />
-                <span className="hidden sm:inline">ログイン</span>
+                <span className="hidden sm:inline">ログイン / 新規登録</span>
               </motion.button>
             )}
           </motion.div>
