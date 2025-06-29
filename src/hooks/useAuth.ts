@@ -67,30 +67,6 @@ export function useAuth() {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          }
-        }
-      });
-      
-      if (error) {
-        console.error('Sign up error:', error);
-        return { error };
-      }
-      
-      return { data, error: null };
-    } catch (err) {
-      console.error('Sign up exception:', err);
-      return { error: err as Error };
-    }
-  };
-
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     return { error };
@@ -100,7 +76,6 @@ export function useAuth() {
     user,
     loading,
     signIn,
-    signUp,
     signOut,
   };
 }
