@@ -58,8 +58,8 @@ export function NotificationToast() {
             className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 p-4 max-w-sm w-full backdrop-blur-sm"
           >
             <div className="flex items-start space-x-3">
-              <div className={`flex-shrink-0 text-lg ${NOTIFICATION_COLORS[notification.type]}`}>
-                {NOTIFICATION_ICONS[notification.type]}
+              <div className={`flex-shrink-0 text-lg ${NOTIFICATION_COLORS[notification.type] || 'text-gray-500'}`}>
+                {NOTIFICATION_ICONS[notification.type] || '❓'}
               </div>
               
               <div className="flex-1 min-w-0">
